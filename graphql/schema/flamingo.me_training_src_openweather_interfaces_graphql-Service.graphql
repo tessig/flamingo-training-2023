@@ -1,0 +1,18 @@
+
+type Openweather_Weather {
+	MainCharacter:       String
+	Description:         String
+	IconCode:            String
+	Temp:                Int
+	Humidity:            Int
+	TempMin:             Int
+	TempMax:             Int
+	WindSpeed:           Float
+	Cloudiness:          Int
+	LocationName:        String
+	LocationCountryCode: String
+}
+
+extend type Query {
+	Openweather_Weather(city: String!): Openweather_Weather!
+}

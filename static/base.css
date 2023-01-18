@@ -1,0 +1,49 @@
+body {
+    padding: 0;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    background-color: #203b4e;
+    color: #fff;
+    min-height: 60px;
+    padding: 10px 0 10px 40px;
+    overflow: hidden;
+}
+
+header h1 {
+    line-height: 60px;
+    padding: 0 0 0 40px;
+    margin: 0;
+    float: left
+}
+
+header p {
+    color: #506b7e;
+    padding: 0 0 10px;
+}
+
+header .logo {
+    background-image: url('logo.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 50px;
+    width: 160px;
+    float: left;
+    background-position: 0 7px;
+}
+
+header .weather {
+    float: right;
+    padding: 0 40px 0 0;
+}
+
+header img {
+    vertical-align: middle;
+}
+
+.content {
+    padding: 20px;
+    color: #203b4e;
+}

@@ -1,0 +1,4 @@
+- path: /foo
+  controller: flamingo.redirect(to="hello")
+- path: /static/*name
+  controller: flamingo.static.file(name,dir?="static")
