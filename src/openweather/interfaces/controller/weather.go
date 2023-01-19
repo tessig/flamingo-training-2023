@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"flamingo.me/flamingo/v3/framework/web"
+	"go.opencensus.io/trace"
 
 	"flamingo.me/training/src/openweather/application"
 	"flamingo.me/training/src/openweather/domain"
@@ -32,6 +33,8 @@ func (c *Weather) Inject(
 }
 
 func (c *Weather) Weather(ctx context.Context, r *web.Request) web.Result {
+	ctx, span := trace.StartSpan(ctx, "weather/city")
+	defer span.End()
 	city := r.Params["city"]
 
 	weather, err := c.weatherService.GetByCity(ctx, city)
