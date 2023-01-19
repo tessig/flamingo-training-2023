@@ -3,6 +3,8 @@ package controller
 import (
 	"context"
 
+	"flamingo.me/flamingo/v3/core/auth"
+	"flamingo.me/flamingo/v3/core/auth/oauth"
 	"flamingo.me/flamingo/v3/framework/web"
 	"go.opencensus.io/trace"
 
@@ -12,8 +14,9 @@ import (
 
 type (
 	Weather struct {
-		responder      *web.Responder
-		weatherService application.Service
+		responder       *web.Responder
+		weatherService  application.Service
+		identityService *auth.WebIdentityService
 	}
 
 	viewData struct {
@@ -25,9 +28,11 @@ type (
 func (c *Weather) Inject(
 	responder *web.Responder,
 	weatherService application.Service,
+	identityService *auth.WebIdentityService,
 ) *Weather {
 	c.responder = responder
 	c.weatherService = weatherService
+	c.identityService = identityService
 
 	return c
 }
@@ -48,7 +53,23 @@ func (c *Weather) Weather(ctx context.Context, r *web.Request) web.Result {
 }
 
 func (c *Weather) Detail(ctx context.Context, req *web.Request, callParams web.RequestParams) interface{} {
+	identity := c.identityService.Identify(ctx, req)
+
 	city := callParams["city"]
+	if identity != nil {
+		oidcIdentity, ok := identity.(oauth.OpenIDIdentity)
+		if ok {
+			var claims struct {
+				Address struct {
+					Locality string
+				}
+			}
+			err := oidcIdentity.IDTokenClaims(&claims)
+			if err == nil {
+				city = claims.Address.Locality
+			}
+		}
+	}
 
 	weather, err := c.weatherService.GetByCity(ctx, city)
 	if err != nil {
