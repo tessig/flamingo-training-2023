@@ -1,0 +1,7 @@
+- name: "hello2"
+  path: /test
+  controller: helloworld.hello
+- name: "foo"
+  path: /foo
+  controller: helloworld.name(name="Max")
+
