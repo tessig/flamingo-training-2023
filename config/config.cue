@@ -10,7 +10,7 @@ core: {
 					broker:       "keycloak"
 					clientID:     "client1"
 					clientSecret: "client1"
-					endpoint:     "http://localhost:8080/realms/Realm1"
+					endpoint:     "http://docker.for.mac.localhost:8080/realms/Realm1"
 					enableOfflineToken: false
 					scopes: ["profile", "email", "address"]
 					claims: {
