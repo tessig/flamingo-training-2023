@@ -13,3 +13,7 @@ core: {
 		colored:  true
 	}
 }
+
+graphql: {
+	introspectionEnabled: true
+}

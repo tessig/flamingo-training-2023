@@ -5,10 +5,12 @@ import (
 	"flamingo.me/flamingo/v3/core/cache"
 	"flamingo.me/flamingo/v3/core/healthcheck/domain/healthcheck"
 	"flamingo.me/flamingo/v3/framework/web"
+	flamingoGQL "flamingo.me/graphql"
 
 	"flamingo.me/training/src/openweather/application"
 	"flamingo.me/training/src/openweather/infrastructure"
 	"flamingo.me/training/src/openweather/interfaces/controller"
+	"flamingo.me/training/src/openweather/interfaces/graphql"
 )
 
 type (
@@ -46,6 +48,8 @@ func (m *Module) Configure(injector *dingo.Injector) {
 
 	injector.Bind(new(cache.HTTPFrontend)).AnnotatedWith("openweather").In(dingo.Singleton)
 	injector.Bind(new(cache.Backend)).ToInstance(cache.NewInMemoryCache())
+
+	injector.BindMulti(new(flamingoGQL.Service)).To(new(graphql.Service))
 }
 
 // CueConfig for the module

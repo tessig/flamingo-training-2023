@@ -37,6 +37,9 @@ core: {
 }
 
 flamingo: {
+	os: env: {
+		OPENWEATHER_API_KEY: string | *""
+	}
 	opencensus: {
 		jaeger: {
 			enable: false
