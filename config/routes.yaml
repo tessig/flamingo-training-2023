@@ -4,4 +4,5 @@
 - name: "foo"
   path: /foo
   controller: helloworld.name(name="Max")
-
+- path: /static/*name
+  controller: flamingo.static.file(name,dir?="static")

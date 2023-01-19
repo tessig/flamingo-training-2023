@@ -1,0 +1,12 @@
+{{template "base.html" .}}
+
+{{define "content"}}
+<h1>Weather in {{ .Weather.LocationName }}</h1>
+
+<p>
+    <img src="http://openweathermap.org/img/w/{{ .Weather.IconCode }}.png"> {{.Weather.Temp}} °C
+</p>
+<p>
+    {{ .Weather.Description }}
+</p>
+{{end}}
