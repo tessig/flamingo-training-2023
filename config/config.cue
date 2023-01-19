@@ -22,7 +22,7 @@ core: {
 flamingo: {
 	opencensus: {
 		jaeger: {
-			enable: true
+			enable: false
 		}
 	}
 }

@@ -2,6 +2,7 @@ package openweather
 
 import (
 	"flamingo.me/dingo"
+	"flamingo.me/flamingo/v3/core/cache"
 	"flamingo.me/flamingo/v3/core/healthcheck/domain/healthcheck"
 	"flamingo.me/flamingo/v3/framework/web"
 
@@ -23,8 +24,8 @@ type (
 // Inject dependencies
 func (m *Module) Inject(
 	cfg *struct {
-	UseFake bool `inject:"config:openweather.useFake"`
-},
+		UseFake bool `inject:"config:openweather.useFake"`
+	},
 ) *Module {
 	if cfg != nil {
 		m.useFake = cfg.UseFake
@@ -42,6 +43,9 @@ func (m *Module) Configure(injector *dingo.Injector) {
 	}
 
 	injector.BindMap(new(healthcheck.Status), "openweather").To(new(infrastructure.Adapter))
+
+	injector.Bind(new(cache.HTTPFrontend)).AnnotatedWith("openweather").In(dingo.Singleton)
+	injector.Bind(new(cache.Backend)).ToInstance(cache.NewInMemoryCache())
 }
 
 // CueConfig for the module
