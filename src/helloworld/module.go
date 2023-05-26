@@ -2,8 +2,10 @@ package helloworld
 
 import (
 	"flamingo.me/dingo"
+	"flamingo.me/flamingo/v3/framework/flamingo"
 	"flamingo.me/flamingo/v3/framework/web"
 
+	"flamingo.me/training/src/helloworld/application"
 	"flamingo.me/training/src/helloworld/interfaces/controllers"
 )
 
@@ -18,6 +20,9 @@ type (
 
 func (m *Module) Configure(injector *dingo.Injector) {
 	web.BindRoutes(injector, new(routes))
+
+	injector.BindMulti(new(web.Filter)).To(new(application.Filter))
+	flamingo.BindEventSubscriber(injector).To(new(application.Subscriber))
 }
 
 // CueConfig for the module
