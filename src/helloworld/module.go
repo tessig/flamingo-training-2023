@@ -20,6 +20,16 @@ func (m *Module) Configure(injector *dingo.Injector) {
 	web.BindRoutes(injector, new(routes))
 }
 
+// CueConfig for the module
+func (m *Module) CueConfig() string {
+	// language=cue
+	return `
+helloworld: {
+	greeting: string | *"hello from default config"
+	secret: os.env.MYSECRET
+}
+`
+}
 func (r *routes) Inject(helloController *controllers.HelloController) *routes {
 	r.helloController = helloController
 

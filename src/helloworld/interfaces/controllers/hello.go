@@ -8,6 +8,7 @@ import (
 
 type (
 	HelloController struct {
+		greeting  string
 		responder *web.Responder
 	}
 )
@@ -15,12 +16,18 @@ type (
 // Inject dependencies
 func (h *HelloController) Inject(
 	responder *web.Responder,
+	cfg *struct {
+		Greeting string `inject:"config:helloworld.greeting"`
+	},
 ) *HelloController {
 	h.responder = responder
+	if cfg != nil {
+		h.greeting = cfg.Greeting
+	}
 
 	return h
 }
 
 func (h *HelloController) HelloAction(ctx context.Context, req *web.Request) web.Result {
-	return h.responder.Render("index", []string{"hello", "world"})
+	return h.responder.Render("index", h.greeting)
 }
