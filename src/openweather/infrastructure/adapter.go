@@ -4,8 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
+
+	"flamingo.me/flamingo/v3/core/healthcheck/domain/healthcheck"
+	"go.opencensus.io/trace"
 
 	"flamingo.me/training/src/openweather/application"
 	"flamingo.me/training/src/openweather/domain"
@@ -62,6 +66,7 @@ type (
 var (
 	// Check if we really implement the interface during compilation
 	_ application.Service = new(Adapter)
+	_ healthcheck.Status  = new(Adapter)
 	// ErrNoWeather is returned if no weather data is available
 	ErrNoWeather = errors.New("no weather data")
 )
@@ -77,8 +82,15 @@ func (a *Adapter) Inject(
 
 // GetByCity returns the weather for the given city
 func (a *Adapter) GetByCity(ctx context.Context, city string) (domain.Weather, error) {
+	ctx, span := trace.StartSpan(ctx, "openweather/getByCity")
+	defer span.End()
+
 	resp, err := a.apiClient.request(ctx, http.MethodGet, "weather?q="+city, nil)
 	if err != nil {
+		span.SetStatus(trace.Status{
+			Code:    trace.StatusCodeInternal,
+			Message: err.Error(),
+		})
 		return domain.Weather{}, err
 	}
 
@@ -111,4 +123,18 @@ func mapDto(dto *weatherDto) (domain.Weather, error) {
 		Cloudiness:    dto.Clouds.All,
 		LocationName:  dto.Name,
 	}, nil
+}
+
+func (a *Adapter) Status() (alive bool, details string) {
+	resp, err := a.apiClient.request(context.Background(), http.MethodGet, "weather?q=London", nil)
+	if err != nil {
+		return false, err.Error()
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return false, fmt.Sprintf("openweather API HTTP status was %d", resp.StatusCode)
+	}
+
+	return true, "everything fine"
 }

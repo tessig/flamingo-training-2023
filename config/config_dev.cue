@@ -3,5 +3,13 @@ helloworld: {
 }
 
 openweather: {
-	useFake: true
+	useFake: false
+}
+
+core: {
+	zap: {
+		loglevel: "Debug"
+		json:     false
+		colored:  true
+	}
 }

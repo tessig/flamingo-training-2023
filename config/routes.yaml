@@ -4,3 +4,5 @@
 - name: "hello.flmaingo"
   path: /flamingo
   controller: hello.name(name="Flamingo")
+- path: /static/*name
+  controller: flamingo.static.file(name,dir?="static")
