@@ -7,8 +7,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
+	"flamingo.me/flamingo/v3/core/cache"
 	"flamingo.me/flamingo/v3/core/healthcheck/domain/healthcheck"
+	"flamingo.me/flamingo/v3/framework/flamingo"
 	"go.opencensus.io/trace"
 
 	"flamingo.me/training/src/openweather/application"
@@ -19,6 +22,8 @@ type (
 	// Adapter for openweather
 	Adapter struct {
 		apiClient *APIClient
+		logger    flamingo.Logger
+		cache     *cache.HTTPFrontend
 	}
 
 	weatherDto struct {
@@ -74,8 +79,16 @@ var (
 // Inject dependencies
 func (a *Adapter) Inject(
 	client *APIClient,
+	logger flamingo.Logger,
+	ann *struct {
+		Cache *cache.HTTPFrontend `inject:"openweather"`
+	},
 ) *Adapter {
 	a.apiClient = client
+	a.logger = logger
+	if ann != nil {
+		a.cache = ann.Cache
+	}
 
 	return a
 }
@@ -85,15 +98,25 @@ func (a *Adapter) GetByCity(ctx context.Context, city string) (domain.Weather, e
 	ctx, span := trace.StartSpan(ctx, "openweather/getByCity")
 	defer span.End()
 
-	resp, err := a.apiClient.request(ctx, http.MethodGet, "weather?q="+city, nil)
-	if err != nil {
-		span.SetStatus(trace.Status{
-			Code:    trace.StatusCodeInternal,
-			Message: err.Error(),
-		})
-		return domain.Weather{}, err
+	loader := func(ctx context.Context) (*http.Response, *cache.Meta, error) {
+		a.logger.Debug("openweather data loader called")
+		resp, err := a.apiClient.request(ctx, http.MethodGet, "weather?q="+city, nil)
+		if err != nil {
+			span.SetStatus(trace.Status{
+				Code:    trace.StatusCodeInternal,
+				Message: err.Error(),
+			})
+			return nil, nil, err
+		}
+
+		return resp, &cache.Meta{
+			Tags:      []string{"weatherByCity", city},
+			Lifetime:  10 * time.Second,
+			Gracetime: 5 * time.Second,
+		}, nil
 	}
 
+	resp, err := a.cache.Get(ctx, city, loader)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return domain.Weather{}, err
