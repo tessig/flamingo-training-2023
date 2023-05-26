@@ -1,0 +1,6 @@
+- name: "hello.alias"
+  path: /alias
+  controller: helloworld
+- name: "hello.flmaingo"
+  path: /flamingo
+  controller: hello.name(name="Flamingo")

@@ -11,6 +11,11 @@ type (
 		greeting  string
 		responder *web.Responder
 	}
+
+	viewData struct {
+		Greeting string
+		Name     string
+	}
 )
 
 // Inject dependencies
@@ -29,5 +34,18 @@ func (h *HelloController) Inject(
 }
 
 func (h *HelloController) HelloAction(ctx context.Context, req *web.Request) web.Result {
-	return h.responder.Render("index", h.greeting)
+	return h.responder.Render("index", viewData{
+		Greeting: h.greeting,
+	})
+}
+
+func (h *HelloController) HelloNameAction(ctx context.Context, req *web.Request) web.Result {
+	name, ok := req.Params["name"]
+	if !ok {
+		name = "Unknown Person"
+	}
+	return h.responder.Render("index", viewData{
+		Greeting: h.greeting,
+		Name:     name,
+	})
 }

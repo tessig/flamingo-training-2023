@@ -26,7 +26,6 @@ func (m *Module) CueConfig() string {
 	return `
 helloworld: {
 	greeting: string | *"hello from default config"
-	secret: os.env.MYSECRET
 }
 `
 }
@@ -39,4 +38,6 @@ func (r *routes) Inject(helloController *controllers.HelloController) *routes {
 func (r *routes) Routes(registry *web.RouterRegistry) {
 	registry.MustRoute("/", "helloworld")
 	registry.HandleAny("helloworld", r.helloController.HelloAction)
+	registry.MustRoute("/hello/:name", "hello.name")
+	registry.HandleAny("hello.name", r.helloController.HelloNameAction)
 }
